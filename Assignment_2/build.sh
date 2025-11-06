@@ -3,4 +3,7 @@ if [ ! -d "bin" ]; then
 else
 	rm bin/*
 fi
-g++ -g -O0 -I . -o bin/interrupts interrupts.cpp
+if [ ! -d "output_files" ]; then
+    mkdir output_files
+fi
+g++ -std=c++17 -g -O0 -I . -o bin/interrupts interrupts_101307214_101306172.cpp

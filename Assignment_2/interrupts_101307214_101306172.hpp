@@ -39,15 +39,31 @@ struct PCB{
     std::string     program_name;
     unsigned int    size;
     int             partition_number;
+    std::string     state;  // "running" or "waiting"
 
     PCB(unsigned int _pid, int _ppid, std::string _pn, unsigned int _size, int _part_num):
-        PID(_pid), PPID(_ppid), program_name(_pn), size(_size), partition_number(_part_num) {}
+        PID(_pid), PPID(_ppid), program_name(_pn), size(_size), partition_number(_part_num), state("running") {}
+    
+    PCB(unsigned int _pid, int _ppid, std::string _pn, unsigned int _size, int _part_num, std::string _state):
+        PID(_pid), PPID(_ppid), program_name(_pn), size(_size), partition_number(_part_num), state(_state) {}
 };
 
 struct external_file{
     std::string     program_name;
     unsigned int    size;
 };
+
+// Global PID counter for FORK operations
+static unsigned int next_pid = 1;
+
+// Random number generator with fixed seed for deterministic behavior
+static std::mt19937 rng(42);
+static std::uniform_int_distribution<int> dist_1_10(1, 10);
+
+// Helper function to get random 1-10ms duration
+int random_1_to_10() {
+    return dist_1_10(rng);
+}
 
 //Allocates a program to memory (if there is space)
 //returns true if the allocation was sucessful, false if not.
@@ -97,7 +113,8 @@ std::vector<std::string> split_delim(std::string input, std::string delim) {
 std::tuple<std::vector<std::string>, std::vector<int>, std::vector<external_file>>parse_args(int argc, char** argv) {
     if(argc != 5) {
         std::cout << "ERROR!\nExpected 4 argument, received " << argc - 1 << std::endl;
-        std::cout << "To run the program, do: ./interrutps <your_trace_file.txt> <your_vector_table.txt> <your_device_table.txt> <your_external_files.txt>" << std::endl;
+        std::cout << "To run the program, do: ./interrupts <trace_file.txt> <vector_table.txt> <device_table.txt> <external_files.txt>" << std::endl;
+        std::cout << "All input files should be in the input_files/ directory" << std::endl;
         exit(1);
     }
 
